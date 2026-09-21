@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velvet Admin</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#fff;padding:20px}
+input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none}
+button{background:#d4af37;font-weight:bold;cursor:pointer}
+.card{background:#222;padding:12px;margin:10px 0;border-radius:10px;display:flex;gap:10px;align-items:center}
+.card img{width:70px;height:70px;object-fit:cover;border-radius:8px}
+#login{max-width:350px;margin:100px auto}
+#panel{display:none}
+</style>
+</head>
+<body>
+
+<div id="login">
+<h2>Velvet Admin Login</h2>
+<input id="pass" type="password" placeholder="Password likho">
+<button onclick="login()">Login</button>
+<p id="err" style="color:red"></p>
+</div>
+
+<div id="panel">
+<h2>Admin Panel - Velvet2</h2>
+<p>Aapki site: <b>kingahsan.github.io/Velvet2/</b></p>
+
+<h3>Naya Product Add Karo</h3>
+<input id="pname" placeholder="Product Name - jaise: Black Kurta">
+<input id="pprice" placeholder="Price - jaise: 2500">
+<input id="pimg" placeholder="Image Link - Imgur ya koi direct image link">
+<button onclick="addProduct()">Add Product</button>
+
+<h3>Products List</h3>
+<div id="list"></div>
+
+<button style="background:#555;color:#fff" onclick="logout()">Logout</button>
+<p style="font-size:12px;color:#aaa;margin-top:20px">Note: Ye products sirf is browser me save honge. Dusre logo ko dikhane ke liye aapko ye list apne index.html me manually dalni paregi. Professional system ke liye Firebase lagana parega.</p>
+</div>
+
+<script>
+const ADMIN_PASS="velvet123";
+function login(){
+ if(document.getElementById('pass').value===ADMIN_PASS){
+  localStorage.setItem('velvet_admin','yes');
+  showPanel();
+ } else {
+  document.getElementById('err').innerText="Ghalat password!";
+ }
+}
+function showPanel(){
+ document.getElementById('login').style.display='none';
+ document.getElementById('panel').style.display='block';
+ render();
+}
+function logout(){ localStorage.removeItem('velvet_admin'); location.reload(); }
+function addProduct(){
+ let name=document.getElementById('pname').value;
+ let price=document.getElementById('pprice').value;
+ let img=document.getElementById('pimg').value;
+ if(!name||!price||!img) return alert('Sab fill karo');
+ let products=JSON.parse(localStorage.getItem('velvet_products')||'[]');
+ products.push({name,price,img});
+ localStorage.setItem('velvet_products',JSON.stringify(products));
+ document.getElementById('pname').value='';document.getElementById('pprice').value='';document.getElementById('pimg').value='';
+ render();
+}
+function render(){
+ let products=JSON.parse(localStorage.getItem('velvet_products')||'[]');
+ let html='';
+ products.forEach((p,i)=>{
+  html+=`<div class="card"><img src="${p.img}"><div style="flex:1"><b>${p.name}</b><br>Rs ${p.price}</div><button style="width:60px;background:red;color:#fff" onclick="del(${i})">X</button></div>`;
+ });
+ document.getElementById('list').innerHTML=html||'Koi product nahi';
+}
+function del(i){
+ let products=JSON.parse(localStorage.getItem('velvet_products')||'[]');
+ products.splice(i,1);
+ localStorage.setItem('velvet_products',JSON.stringify(products));
+ render();
+}
+if(localStorage.getItem('velvet_admin')==='yes') showPanel();
+</script>
+</body>
+</html>
